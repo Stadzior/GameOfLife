@@ -27,7 +27,7 @@ namespace GameOfLifeWPF
         }
         private void InitializePlayground()
         {
-            int playgroundSize = 15;
+            int playgroundSize = 4;
             _cells = new List<Cell>();
             CreatePlayground(playgroundSize);
             BondCellsWithNeighbours();
@@ -71,31 +71,46 @@ namespace GameOfLifeWPF
 
         private void mainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-              if(e.Key == Key.RightShift)
+            switch (e.Key)
             {
-                if (_gameIsRunning)
-                {
-                    PauseGame();
-                }
-                else
-                {
-                    ResumeGame();
-                }
-                _gameIsRunning = !_gameIsRunning;
-            }
-            else
-            {
-                if(e.Key == Key.R)
-                {
-                    RandomizePlayground();
-                }else
-                {
-                    if(e.Key == Key.C)
+                case Key.RightShift:
                     {
-                        ClearPlayground();
+                        if (_gameIsRunning)
+                        {
+                            PauseGame();
+                        }
+                        else
+                        {
+                            ResumeGame();
+                        }
+                        _gameIsRunning = !_gameIsRunning;
+                        break;
                     }
-                }
+
+                case Key.R:
+                    RandomizePlayground();
+                    break;
+
+                case Key.C:
+                    ClearPlayground();
+                    break;
+
+                case Key.S:
+                    PerformStep();
+                    break;
             }
+
+        }
+
+        private void PerformStep()
+        {
+            foreach (Cell cell in wrapPanelPlayground.Children)
+            {
+                Thread survivalThread = new Thread(() => cell.PerformStep());
+                _survivalThreads.Add(survivalThread);
+                survivalThread.Start();
+            }
+            PauseGame();
         }
 
         private void ClearPlayground()
@@ -130,7 +145,7 @@ namespace GameOfLifeWPF
         {
             foreach (Cell cell in wrapPanelPlayground.Children)
             {
-                Thread survivalThread = new Thread(() => cell.Survive(ref mainWindow));
+                Thread survivalThread = new Thread(() => cell.Survive());
                 _survivalThreads.Add(survivalThread);
                 survivalThread.Start();
             }

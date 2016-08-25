@@ -1,20 +1,10 @@
 ﻿using GameOfLifeWPF.Model;
-using GameOfLifeWPF.Model.Base;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System;
 
 namespace GameOfLifeWPF
 {
@@ -40,20 +30,26 @@ namespace GameOfLifeWPF
             {
                 for (double j = 0; j < wrapPanelPlayground.Height; j+=(wrapPanelPlayground.Height / playgroundSize))
                 {
-                    BaseCell cell = new RegularCell();
+                    Cell cell = new Cell(GatherNeighbours(i,j));
                     cell.Background = Brushes.Bisque;
                     cell.Width = wrapPanelPlayground.Width / playgroundSize;
                     cell.Height = wrapPanelPlayground.Height / playgroundSize;
-                    
-                    cell.Click += ResurrectCell;
+                    cell.Click += ChangeCellState;
                     wrapPanelPlayground.Children.Add(cell);
                 }
             }
         }
 
-        private void ResurrectCell(object sender, RoutedEventArgs e)
+        private object GatherNeighbours(double i, double j)
         {
-            ((Button)sender).Background = Brushes.Purple;
+            throw new NotImplementedException();
+        }
+
+        private void ChangeCellState(object sender, RoutedEventArgs e)
+        {
+            Cell cell = ((Cell)sender);
+            cell.IsAlive = !cell.IsAlive;
+            cell.EmitCellState();
         }
 
         private void mainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -68,6 +64,7 @@ namespace GameOfLifeWPF
                 {
                     ResumeGame();
                 }
+                _gameIsRunning = !_gameIsRunning;
             }
         }
 
@@ -82,12 +79,17 @@ namespace GameOfLifeWPF
 
         private void ResumeGame()
         {
-            foreach (BaseCell cell in wrapPanelPlayground.Children)
+            foreach (Cell cell in wrapPanelPlayground.Children)
             {
-                Thread survivalThread = new Thread(() => cell.Survive());
+                Thread survivalThread = new Thread(() => cell.Survive(ref mainWindow));
                 _survivalThreads.Add(survivalThread);
                 survivalThread.Start();
             }
+        }
+
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            PauseGame();
         }
     }
 }

@@ -69,8 +69,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Base\BaseCell.cs" />
-    <Compile Include="Model\RegularCell.cs" />
+    <Compile Include="Model\Cell.cs" />
     <Compile Include="Model\ZombieCell.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

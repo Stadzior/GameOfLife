@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace GameOfLifeWPF.Model
 {
-    class ZombieCell : Base.BaseCell
+    class ZombieCell : Cell
     {
+        public ZombieCell(List<Cell> neighbours) : base(neighbours)
+        {
+        }
     }
 }

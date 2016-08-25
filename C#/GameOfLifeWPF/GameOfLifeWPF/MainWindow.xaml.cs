@@ -17,7 +17,7 @@ namespace GameOfLifeWPF
         private bool _gameIsRunning;
         private List<Thread> _survivalThreads;
         private List<Cell> _cells;
-
+        private Thread _gameThread;
         public MainWindow()
         {
             _gameIsRunning = false;
@@ -27,13 +27,17 @@ namespace GameOfLifeWPF
         }
         private void InitializePlayground()
         {
-            int playgroundSize = 4;
+            int playgroundSize = 50;
+            int cellSize = 10;
+            Background = Brushes.DarkRed;
+            wrapPanelPlayground.Height = cellSize * playgroundSize;
+            wrapPanelPlayground.Width = cellSize * playgroundSize;
             _cells = new List<Cell>();
-            CreatePlayground(playgroundSize);
+            CreatePlayground(playgroundSize,cellSize);
             BondCellsWithNeighbours();
         }
 
-        private void CreatePlayground(int playgroundSize)
+        private void CreatePlayground(int playgroundSize,int cellSize)
         {
             for (double i = 0; i < playgroundSize; i ++)
             {
@@ -41,10 +45,11 @@ namespace GameOfLifeWPF
                 {
                     Cell cell = new Cell();
                     cell.Background = Brushes.Bisque;
-                    cell.Width = wrapPanelPlayground.Width / playgroundSize;
-                    cell.Height = wrapPanelPlayground.Height / playgroundSize;
-                    cell.Click += ChangeCellState;
+                    cell.Width = cellSize;
+                    cell.Height = cellSize;
+                    cell.Click += Cell_Click;
                     cell.Coordinates = new Point(i, j);
+                    cell.ToolTip = i.ToString() + "," + j.ToString();
                     _cells.Add(cell);
                     wrapPanelPlayground.Children.Add(cell);
                 }
@@ -62,11 +67,31 @@ namespace GameOfLifeWPF
             }
         }
 
-        private void ChangeCellState(object sender, RoutedEventArgs e)
+        private void Cell_Click(object sender, RoutedEventArgs e)
         {
             Cell cell = ((Cell)sender);
-            cell.IsAlive = !cell.IsAlive;
+            if (cell.IsAlive)
+            {
+                if(cell is ZombieCell)
+                {
+                    cell.IsAlive = false;
+                }
+                else
+                {
+                    TransformToZombie(cell);
+                }
+            }
+            else
+            {
+                cell.IsAlive = true;
+            }
+
             cell.EmitCellState();
+        }
+
+        private void TransformToZombie(Cell cell)
+        {
+            throw new NotImplementedException();
         }
 
         private void mainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -81,9 +106,11 @@ namespace GameOfLifeWPF
                         }
                         else
                         {
-                            ResumeGame();
+                            
+                            _gameThread = new Thread(()=>ResumeGame());
+                            _gameThread.Start();
+                            Background = Brushes.ForestGreen;
                         }
-                        _gameIsRunning = !_gameIsRunning;
                         break;
                     }
 
@@ -104,13 +131,16 @@ namespace GameOfLifeWPF
 
         private void PerformStep()
         {
-            foreach (Cell cell in wrapPanelPlayground.Children)
+            Dictionary<Cell, bool> futureStates = new Dictionary<Cell, bool>();
+            foreach (Cell cell in _cells)
             {
-                Thread survivalThread = new Thread(() => cell.PerformStep());
-                _survivalThreads.Add(survivalThread);
-                survivalThread.Start();
+                futureStates.Add(cell, cell.DetermineIfCellSurvived());
             }
-            PauseGame();
+            foreach (KeyValuePair<Cell,bool> pair in futureStates)
+            {
+                pair.Key.IsAlive = pair.Value;
+                pair.Key.EmitCellState();
+            }
         }
 
         private void ClearPlayground()
@@ -134,20 +164,18 @@ namespace GameOfLifeWPF
 
         private void PauseGame()
         {
-            foreach (Thread thread in _survivalThreads)
-            {
-                thread.Abort();
-            }
-            _survivalThreads.Clear();
+            _gameIsRunning = false;
+            Background = Brushes.DarkRed;
+            _gameThread.Abort();
         }
 
         private void ResumeGame()
         {
-            foreach (Cell cell in wrapPanelPlayground.Children)
+            _gameIsRunning = true;
+            while (_gameIsRunning)
             {
-                Thread survivalThread = new Thread(() => cell.Survive());
-                _survivalThreads.Add(survivalThread);
-                survivalThread.Start();
+                PerformStep();
+                Thread.Sleep(10);
             }
         }
 

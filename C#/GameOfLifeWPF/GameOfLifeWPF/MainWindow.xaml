@@ -5,6 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameOfLifeWPF"
         mc:Ignorable="d"
-        Title="Game of Life" Height="532.592" Width="509.605" KeyDown="mainWindow_KeyDown" Closing="mainWindow_Closing">
-    <WrapPanel x:Name="wrapPanelPlayground" Margin="0" Width="500" Height="500" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        Title="Game of Life" Height="700" Width="700" KeyDown="mainWindow_KeyDown" Closing="mainWindow_Closing" Background="{x:Null}">
+    <WrapPanel x:Name="wrapPanelPlayground" Margin="0" Width="500" Height="500" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 </Window>

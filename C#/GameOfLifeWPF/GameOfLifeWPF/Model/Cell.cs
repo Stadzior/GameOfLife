@@ -16,24 +16,13 @@ namespace GameOfLifeWPF.Model
         public Point Coordinates { get; set; }
         public List<Cell> Neighbours { get; set; }
 
-        public void Survive()
-        {
-            while (true)
-            {
-                PerformStep();
-            }
-        }
-
-        public void PerformStep()
-        {
-            IsAlive = DetermineIfCellSurvived();
-            EmitCellState();
-            Thread.Sleep(100);
-        }
-
-        private bool DetermineIfCellSurvived()
+        public bool DetermineIfCellSurvived()
         {
             int aliveNeighboursCount = Neighbours.Where((neighbour) => neighbour.IsAlive).Count();
+            if (aliveNeighboursCount == 3 || (IsAlive && aliveNeighboursCount == 2))
+            {
+                int i = 0;
+            }
             return aliveNeighboursCount == 3 || (IsAlive && aliveNeighboursCount == 2);
         }
 

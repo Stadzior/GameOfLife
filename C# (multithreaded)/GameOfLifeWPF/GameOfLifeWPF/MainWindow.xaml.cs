@@ -27,7 +27,7 @@ namespace GameOfLifeWPF
         }
         private void InitializePlayground()
         {
-            int playgroundSize = 10;
+            int playgroundSize = 15;
             _cells = new List<Cell>();
             CreatePlayground(playgroundSize);
             BondCellsWithNeighbours();
@@ -82,6 +82,38 @@ namespace GameOfLifeWPF
                     ResumeGame();
                 }
                 _gameIsRunning = !_gameIsRunning;
+            }
+            else
+            {
+                if(e.Key == Key.R)
+                {
+                    RandomizePlayground();
+                }else
+                {
+                    if(e.Key == Key.C)
+                    {
+                        ClearPlayground();
+                    }
+                }
+            }
+        }
+
+        private void ClearPlayground()
+        {
+            foreach (Cell cell in _cells)
+            {
+                cell.IsAlive = false;
+                cell.EmitCellState();
+            }
+        }
+
+        private void RandomizePlayground()
+        {
+            foreach (Cell cell in _cells)
+            {
+                Thread.Sleep(1);
+                cell.IsAlive = new Random((int)DateTime.Now.Ticks).Next(2) == 1;
+                cell.EmitCellState();
             }
         }
 

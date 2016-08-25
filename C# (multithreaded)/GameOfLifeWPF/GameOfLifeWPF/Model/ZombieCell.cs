@@ -8,8 +8,5 @@ namespace GameOfLifeWPF.Model
 {
     class ZombieCell : Cell
     {
-        public ZombieCell(List<Cell> neighbours) : base(neighbours)
-        {
-        }
     }
 }

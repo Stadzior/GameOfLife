@@ -1,12 +1,10 @@
-﻿<Window x:Class="GameOfLifeWPF.MainWindow"
+﻿<Window x:Name="mainWindow" x:Class="GameOfLifeWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameOfLifeWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="Game of life" Height="532.592" Width="509.605">
+    <WrapPanel x:Name="wrapPanel" Margin="0" Width="500" Height="500" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 </Window>

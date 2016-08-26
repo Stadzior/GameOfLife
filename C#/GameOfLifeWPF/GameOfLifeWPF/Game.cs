@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace GameOfLifeWPF
 {
@@ -56,10 +58,23 @@ namespace GameOfLifeWPF
         public static void PerformStep()
         {
             Dictionary<Cell, bool> futureStates = new Dictionary<Cell, bool>();
-            foreach (Cell cell in _cells)
+            for (int i = 0; i < _cells.Count; i++)
             {
+                Cell cell = _cells[i];
+                if (cell is VirusCell && !cell.IsAlive)
+                {
+                    Application.Current.Dispatcher.Invoke(() => MutateCellTo<RegularCell>(cell));
+                }
+                else
+                {
+                    if(!(cell is VirusCell) && cell.IsAlive && cell.Neighbours.Any((neighbour)=>neighbour is VirusCell))
+                    {
+                        Application.Current.Dispatcher.Invoke(() => MutateCellTo<VirusCell>(cell));
+                    }
+                }
                 futureStates.Add(cell, cell.DetermineIfCellSurvived());
             }
+
             foreach (KeyValuePair<Cell, bool> pair in futureStates)
             {
                 pair.Key.IsAlive = pair.Value;
@@ -102,6 +117,7 @@ namespace GameOfLifeWPF
                     Thread.Sleep(10);
                 }
             });
+            _gameThread.SetApartmentState(ApartmentState.STA);
             _gameThread.Start();
         }
 
@@ -113,21 +129,40 @@ namespace GameOfLifeWPF
                 if (cell is VirusCell)
                 {
                     cell.IsAlive = false;
-                    cell = new RegularCell(cell);
+                    MutateCellTo<RegularCell>(cell);
                 }
                 else
                 {
-                    cell = new VirusCell(cell); //TODO Do you must change instances in neighbours too?
+                    MutateCellTo<VirusCell>(cell);
                 }
-                _cells[_cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = cell;
-                //wrapPanelPlayground[wrapPanelPlayground.FindIndex((x) => x.Coordinates == cell.Coordinates)] = cell;
             }
             else
             {
                 cell.IsAlive = true;
+                cell.EmitCellState();
             }
+        }
 
-            cell.EmitCellState();
+        private static void MutateCellTo<T>(Cell cell) where T : Cell
+        {
+            T changedCell = (T)Activator.CreateInstance(typeof(T), new object[] { cell });
+            _cells[_cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = changedCell;
+
+            WrapPanel wrapPanelPlayground = (WrapPanel)cell.Parent;
+            int cellIndexWithinWrapPanel = wrapPanelPlayground.Children.IndexOf(cell);
+
+            wrapPanelPlayground.Children.RemoveAt(cellIndexWithinWrapPanel);
+            wrapPanelPlayground.Children.Insert(cellIndexWithinWrapPanel, changedCell);
+
+            foreach (Cell neighbour in changedCell.Neighbours)
+            {
+                neighbour.Neighbours.Remove(cell);
+                neighbour.Neighbours.Add(changedCell);
+            }
+            //int random = new Random().Next(changedCell.Neighbours.Count);
+            //MutateCellTo<VirusCell>(changedCell.Neighbours.First((neighbour) => changedCell.Neighbours.IndexOf(neighbour) == random));
+
+            changedCell.EmitCellState();
         }
     }
 }

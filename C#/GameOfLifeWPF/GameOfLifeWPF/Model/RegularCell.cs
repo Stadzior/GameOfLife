@@ -19,6 +19,11 @@ namespace GameOfLifeWPF.Model
         public RegularCell(Cell cell) : base(cell)
         {
         }
+
+        public override bool DetermineIfCellSurvived()
+        {
+            return base.DetermineIfCellSurvived() && !Neighbours.Any((neighbour)=>neighbour is VirusCell);
+        }
         public override void EmitCellState()
         {
             Dispatcher.Invoke(() => Background = IsAlive ? Brushes.Purple : Brushes.Bisque);

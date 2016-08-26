@@ -16,13 +16,14 @@ namespace GameOfLifeWPF.Model
 
         public override bool DetermineIfCellSurvived()
         {
-            int aliveNeighboursCount = Neighbours.Where((neighbour) => neighbour.IsAlive).Count();
-            return aliveNeighboursCount == 3 || (IsAlive && aliveNeighboursCount == 2);
+            bool survived = Age < 10;
+            Age = survived ? Age + 1 : 0;
+            return survived;
         }
 
         public override void EmitCellState()
         {
-            Dispatcher.Invoke(() => Background = Brushes.Green);
+            Dispatcher.Invoke(() => Background = Brushes.ForestGreen);
         }
     }
 }

@@ -19,25 +19,21 @@ namespace GameOfLifeWPF.Model.Base
             Age = 0;
         }
 
-        public Cell(Cell cell)
+        public Cell(Cell cell): this(cell.Coordinates, cell.Name, cell.Width, cell.Height, cell.ToolTip, cell.IsAlive, cell.Age)
         {
-            if (cell != this && cell != null)
-            {
-                CellInitialization(cell);
-            }
+            Neighbours = cell.Neighbours; //TODO Fix OnClick Event Handler
         }
 
-        private void CellInitialization(Cell cell)
+        public Cell(Point coordinates, string name,double width, double height,object toolTip, bool isAlive = true, int age = 0, RoutedEventHandler cellClickHandler = null) : this()
         {
-            Coordinates = cell.Coordinates;
-            IsAlive = cell.IsAlive;
-            Neighbours = cell.Neighbours;
-            Name = cell.Name;
-            Width = cell.Width;
-            Height = Height;
-            Click += Game.Cell_Click;
-            ToolTip = cell.ToolTip;
-            Age = cell.Age;
+            Coordinates = coordinates;
+            IsAlive = isAlive;
+            Name = name;
+            Width = width;
+            Height = height;
+            ToolTip = toolTip;
+            Age = age;
+            if(cellClickHandler != null) Click += cellClickHandler;
         }
 
         public virtual bool DetermineIfCellSurvived()

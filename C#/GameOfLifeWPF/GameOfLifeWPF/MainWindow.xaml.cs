@@ -12,18 +12,19 @@ namespace GameOfLifeWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        private Game _game;
         public MainWindow()
         {
             InitializeComponent();
+            _game = new Game();
             int cellSize = 10;
             int playgroundSize = 50;
             stackPanelMain.Background = Brushes.DarkRed;
-            wrapPanelPlayground.Height = cellSize * playgroundSize;
-            wrapPanelPlayground.Width = cellSize * playgroundSize;
-            List<Cell> cells = Game.InitializePlayground(playgroundSize, cellSize);
-            Game.OuterPanel = stackPanelMain;
-            Game.MainWindow = this;
+
+            List<Cell> cells = _game.InitializePlayground(playgroundSize, cellSize);
+            _game.LinkedPlayground.OuterPanel = stackPanelMain;
+            _game.LinkedPlayground.MainWindow = mainWindow;
+
             foreach (Cell cell in cells)
             {
                 wrapPanelPlayground.Children.Add(cell);
@@ -39,7 +40,7 @@ namespace GameOfLifeWPF
             {
                 case Key.RightShift:
                     {
-                        if (Game.GameIsRunning)
+                        if (_game.GameIsRunning)
                         {
                             btnPause.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
                         }
@@ -67,17 +68,17 @@ namespace GameOfLifeWPF
 
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Game.PauseGame();
+            _game.Pause();
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            if (!Game.GameIsRunning) Game.ClearPlayground();
+            if (!_game.GameIsRunning) _game.Reset();
         }
 
         private void btnResume_Click(object sender, RoutedEventArgs e)
         {
-            if (!Game.GameIsRunning) Game.ResumeGame();
+            if (!_game.GameIsRunning) _game.Resume();
         }
 
         private void btnStepBack_Click(object sender, RoutedEventArgs e)
@@ -86,27 +87,27 @@ namespace GameOfLifeWPF
 
         private void btnStepForward_Click(object sender, RoutedEventArgs e)
         {
-            if (!Game.GameIsRunning) Game.PerformStep();
+            if (!_game.GameIsRunning) _game.PerformStep();
         }
 
         private void btnPause_Click(object sender, RoutedEventArgs e)
         {
-            if (Game.GameIsRunning) Game.PauseGame();
+            if (_game.GameIsRunning) _game.Pause();
         }
 
         private void btnRandomize_Click(object sender, RoutedEventArgs e)
         {
-            if (!Game.GameIsRunning) Game.RandomizePlayground();
+            if (!_game.GameIsRunning) _game.Randomize();
         }
 
         public void RefreshToolBar()
         {
-            btnClear.IsEnabled = !Game.GameIsRunning;
+            btnClear.IsEnabled = !_game.GameIsRunning;
             btnStepBack.IsEnabled = false;
-            btnStepForward.IsEnabled = !Game.GameIsRunning;
-            btnResume.IsEnabled = !Game.GameIsRunning;
-            btnPause.IsEnabled = Game.GameIsRunning;
-            btnRandomize.IsEnabled = !Game.GameIsRunning;
+            btnStepForward.IsEnabled = !_game.GameIsRunning;
+            btnResume.IsEnabled = !_game.GameIsRunning;
+            btnPause.IsEnabled = _game.GameIsRunning;
+            btnRandomize.IsEnabled = !_game.GameIsRunning;
         }
     }
 }

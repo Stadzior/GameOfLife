@@ -13,57 +13,24 @@ using System.Windows.Threading;
 
 namespace GameOfLifeWPF
 {
-    public static class Game
+    public class Game
     {
-        public static bool GameIsRunning { get; set; } = false;
-        private static List<Cell> _cells;
-        private static Thread _gameThread;
-        public static MainWindow MainWindow { private get; set; }
-        public static Panel OuterPanel { private get; set; }
+        public bool GameIsRunning { get; private set; } = false;
+        private Thread _gameThread;
+        public Playground LinkedPlayground { get; private set; }
 
-        public static List<Cell> InitializePlayground(int playgroundSize, int cellSize)
+        public List<Cell> InitializePlayground(int playgroundSize, int cellSize)
         {
-            CreatePlayground(playgroundSize, cellSize);
-            BondCellsWithNeighbours();
-            return _cells;
+            LinkedPlayground = new Playground(Cell_Click,playgroundSize, cellSize);
+            return LinkedPlayground.Cells;
         }
 
-        private static void CreatePlayground(int playgroundSize, int cellSize)
-        {
-            _cells = new List<Cell>();
-            for (double i = 0; i < playgroundSize; i++)
-            {
-                for (double j = 0; j < playgroundSize; j++)
-                {
-                    Cell cell = new RegularCell();
-                    cell.Width = cellSize;
-                    cell.Height = cellSize;
-                    cell.Click += Cell_Click;
-                    cell.Coordinates = new Point(i, j);
-                    cell.ToolTip = i.ToString() + "," + j.ToString();
-                    cell.Name = "cell_" + i.ToString() + "_" + j.ToString();
-                    _cells.Add(cell);
-                }
-            }
-        }
-
-        private static void BondCellsWithNeighbours()
-        {
-            foreach (RegularCell cell in _cells)
-            {
-                cell.Neighbours = _cells.Where((x) => (
-                (x.Coordinates.X > cell.Coordinates.X - 2 && x.Coordinates.X < cell.Coordinates.X + 2) &&
-                (x.Coordinates.Y > cell.Coordinates.Y - 2 && x.Coordinates.Y < cell.Coordinates.Y + 2) &&
-                x != cell)).ToList();
-            }
-        }
-
-        public static void PerformStep()
+        public void PerformStep()
         {
             Dictionary<Cell, bool> futureStates = new Dictionary<Cell, bool>();
-            for (int i = 0; i < _cells.Count; i++)
+            for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
-                Cell cell = _cells[i];
+                Cell cell = LinkedPlayground.Cells[i];
                 if (cell is VirusCell && !cell.IsAlive)
                 {
                     Application.Current.Dispatcher.Invoke(() => MutateCellTo<RegularCell>(cell));
@@ -85,34 +52,37 @@ namespace GameOfLifeWPF
             }
         }
 
-        public static void ClearPlayground()
+        public void Reset()
         {
-            foreach (Cell cell in _cells)
+            for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
+                Cell cell = LinkedPlayground.Cells[i];
                 cell.IsAlive = false;
+                if(!(cell is RegularCell)) MutateCellTo<RegularCell>(cell);
                 cell.EmitCellState();
             }
         }
 
-        public static void RandomizePlayground()
+        public void Randomize()
         {
-            foreach (Cell cell in _cells)
+            for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
+                Cell cell = LinkedPlayground.Cells[i];
                 Thread.Sleep(1);
                 cell.IsAlive = new Random((int)DateTime.Now.Ticks).Next(2) == 1;
+                if (!(cell is RegularCell)) MutateCellTo<RegularCell>(cell);
                 cell.EmitCellState();
             }
         }
 
-        public static void PauseGame()
+        public void Pause()
         {
             GameIsRunning = false;
             _gameThread.Abort();
-            OuterPanel.Background = Brushes.DarkRed;
-            MainWindow.RefreshToolBar();
+            LinkedPlayground.RefreshUI(GameIsRunning);
         }
 
-        public static void ResumeGame()
+        public void Resume()
         {
             GameIsRunning = true;
             _gameThread = new Thread(delegate () {
@@ -124,11 +94,10 @@ namespace GameOfLifeWPF
             });
             _gameThread.SetApartmentState(ApartmentState.STA);
             _gameThread.Start();
-            OuterPanel.Background = Brushes.ForestGreen;
-            MainWindow.RefreshToolBar();
+            LinkedPlayground.RefreshUI(GameIsRunning);
         }
 
-        public static void Cell_Click(object sender, RoutedEventArgs e)
+        public void Cell_Click(object sender, RoutedEventArgs e)
         {
             Cell cell = ((Cell)sender);
             if (cell.IsAlive)
@@ -150,10 +119,12 @@ namespace GameOfLifeWPF
             }
         }
 
-        private static T MutateCellTo<T>(Cell cell) where T : Cell
+        private T MutateCellTo<T>(Cell cell) where T : Cell
         {
             T mutant = (T)Activator.CreateInstance(typeof(T), new object[] { cell });
-            _cells[_cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = mutant;
+            mutant.Click += Cell_Click;
+
+            LinkedPlayground.Cells[LinkedPlayground.Cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = mutant;
 
             WrapPanel wrapPanelPlayground = (WrapPanel)cell.Parent;
             int cellIndexWithinWrapPanel = wrapPanelPlayground.Children.IndexOf(cell);

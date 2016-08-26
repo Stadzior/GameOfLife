@@ -129,11 +129,11 @@ namespace GameOfLifeWPF
                 if (cell is VirusCell)
                 {
                     cell.IsAlive = false;
-                    MutateCellTo<RegularCell>(cell);
+                    cell = MutateCellTo<RegularCell>(cell);
                 }
                 else
                 {
-                    MutateCellTo<VirusCell>(cell);
+                    cell = MutateCellTo<VirusCell>(cell);
                 }
             }
             else
@@ -143,26 +143,24 @@ namespace GameOfLifeWPF
             }
         }
 
-        private static void MutateCellTo<T>(Cell cell) where T : Cell
+        private static T MutateCellTo<T>(Cell cell) where T : Cell
         {
-            T changedCell = (T)Activator.CreateInstance(typeof(T), new object[] { cell });
-            _cells[_cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = changedCell;
+            T mutant = (T)Activator.CreateInstance(typeof(T), new object[] { cell });
+            _cells[_cells.FindIndex((x) => x.Coordinates == cell.Coordinates)] = mutant;
 
             WrapPanel wrapPanelPlayground = (WrapPanel)cell.Parent;
             int cellIndexWithinWrapPanel = wrapPanelPlayground.Children.IndexOf(cell);
 
             wrapPanelPlayground.Children.RemoveAt(cellIndexWithinWrapPanel);
-            wrapPanelPlayground.Children.Insert(cellIndexWithinWrapPanel, changedCell);
+            wrapPanelPlayground.Children.Insert(cellIndexWithinWrapPanel, mutant);
 
-            foreach (Cell neighbour in changedCell.Neighbours)
+            foreach (Cell neighbour in mutant.Neighbours)
             {
                 neighbour.Neighbours.Remove(cell);
-                neighbour.Neighbours.Add(changedCell);
+                neighbour.Neighbours.Add(mutant);
             }
-            //int random = new Random().Next(changedCell.Neighbours.Count);
-            //MutateCellTo<VirusCell>(changedCell.Neighbours.First((neighbour) => changedCell.Neighbours.IndexOf(neighbour) == random));
-
-            changedCell.EmitCellState();
+            mutant.EmitCellState();
+            return mutant;
         }
     }
 }

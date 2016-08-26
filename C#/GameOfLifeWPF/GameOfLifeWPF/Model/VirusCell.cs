@@ -1,5 +1,4 @@
 ﻿using GameOfLifeWPF.Model.Base;
-using System.Linq;
 using System.Windows.Media;
 
 namespace GameOfLifeWPF.Model
@@ -16,7 +15,7 @@ namespace GameOfLifeWPF.Model
 
         public override bool DetermineIfCellSurvived()
         {
-            bool survived = Age < 10;
+            bool survived = Age < 20;
             Age = survived ? Age + 1 : 0;
             return survived;
         }

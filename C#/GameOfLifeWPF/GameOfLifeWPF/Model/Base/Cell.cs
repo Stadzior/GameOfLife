@@ -42,7 +42,7 @@ namespace GameOfLifeWPF.Model.Base
 
         public virtual bool DetermineIfCellSurvived()
         {
-            int aliveNeighboursCount = Neighbours.Where((neighbour) => neighbour.IsAlive).Count();
+            int aliveNeighboursCount = Neighbours.Where((neighbour) => neighbour.IsAlive && !(neighbour is VirusCell)).Count();
             bool survived = aliveNeighboursCount == 3 || (IsAlive && aliveNeighboursCount == 2);
             Age = survived ? Age+1 : 0;
             return survived;

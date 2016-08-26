@@ -99,7 +99,7 @@ namespace GameOfLifeWPF
             foreach (Cell cell in _cells)
             {
                 Thread.Sleep(1);
-                cell.IsAlive = new Random((int)DateTime.Now.Ticks).Next(2) == 1;
+                cell.IsAlive = new Random((int)DateTime.Now.Ticks).Next(3) < 2;
                 cell.EmitCellState();
             }
         }

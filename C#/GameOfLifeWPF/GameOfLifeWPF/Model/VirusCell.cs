@@ -15,7 +15,7 @@ namespace GameOfLifeWPF.Model
 
         public override bool DetermineIfCellSurvived()
         {
-            bool survived = Age < 20;
+            bool survived = Age < 10;
             Age = survived ? Age + 1 : 0;
             return survived;
         }

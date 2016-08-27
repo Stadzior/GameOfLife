@@ -5,30 +5,22 @@ using System.Windows.Media;
 using GameOfLifeWPF.Model.Base;
 using System.Windows.Controls.Primitives;
 
-namespace GameOfLifeWPF
+namespace GameOfLifeWPF.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IRefreshable
     {
         private Game _game;
         public MainWindow()
         {
             InitializeComponent();
-            _game = new Game();
-            int cellSize = 10;
+
             int playgroundSize = 50;
-            stackPanelMain.Background = Brushes.DarkRed;
 
-            List<Cell> cells = _game.InitializePlayground(playgroundSize, cellSize);
-            _game.LinkedPlayground.OuterPanel = stackPanelMain;
-            _game.LinkedPlayground.MainWindow = mainWindow;
+            _game = new Game((CellCollection)wrapPanelPlayground.Children, playgroundSize, this);
 
-            foreach (Cell cell in cells)
-            {
-                wrapPanelPlayground.Children.Add(cell);
-            }
             RefreshToolBar();
             Width = wrapPanelPlayground.Width + 20;
             Height = wrapPanelPlayground.Height + toolBarMain.Height + 40;
@@ -68,7 +60,7 @@ namespace GameOfLifeWPF
 
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _game.Pause();
+            if (_game.GameIsRunning) _game.Pause();
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
@@ -108,6 +100,12 @@ namespace GameOfLifeWPF
             btnResume.IsEnabled = !_game.GameIsRunning;
             btnPause.IsEnabled = _game.GameIsRunning;
             btnRandomize.IsEnabled = !_game.GameIsRunning;
+        }
+
+        public void Refresh()
+        {
+            stackPanelMain.Background = _game.GameIsRunning ? Brushes.LightSeaGreen : Brushes.DarkRed;
+            RefreshToolBar();
         }
     }
 }

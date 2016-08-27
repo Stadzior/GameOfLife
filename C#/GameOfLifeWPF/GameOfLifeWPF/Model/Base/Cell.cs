@@ -8,9 +8,9 @@ namespace GameOfLifeWPF.Model.Base
 {
     public abstract class Cell : Button
     {
-        public bool IsAlive { get; set; }
+        public virtual bool IsAlive { get; set; }
         public Point Coordinates { get; set; }
-        public List<Cell> Neighbours { get; set; }
+        public CellCollection Neighbours { get; set; }
         public int Age { get; protected set; }
 
         public Cell()
@@ -44,8 +44,5 @@ namespace GameOfLifeWPF.Model.Base
             return survived;
         }
 
-        public virtual void EmitCellState() //TODO To be removed and better designed
-        {
-        }
     }
 }

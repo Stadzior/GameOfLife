@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameOfLifeWPF"
-        xmlns:Model="clr-namespace:GameOfLifeWPF.Model" x:Name="mainWindow" x:Class="GameOfLifeWPF.MainWindow"
+        xmlns:Model="clr-namespace:GameOfLifeWPF.Model" x:Name="mainWindow" x:Class="GameOfLifeWPF.View.MainWindow"
         mc:Ignorable="d"
         Title="Game of Life" Height="700" Width="700" KeyDown="mainWindow_KeyDown" Closing="mainWindow_Closing" Background="{x:Null}">
     <StackPanel x:Name="stackPanelMain" Margin="0">

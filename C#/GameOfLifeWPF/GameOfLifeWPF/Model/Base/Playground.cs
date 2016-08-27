@@ -10,27 +10,26 @@ namespace GameOfLifeWPF.Model
 {
     public class Playground
     {
-        public MainWindow MainWindow { private get; set; }
-        public Panel OuterPanel { private get; set; }
-        public Panel InnerPanel { private get; set; }
-        public List<Cell> Cells { get; private set; }
+        public Panel PanelContainer { get; set; }
+        public CellCollection Cells { get; set; }
+        //public List<Cell> Cells { get; private set; }
 
-        public Playground(RoutedEventHandler cellClickHandler, int playgroundSize, int cellSize)
+        public Playground(CellCollection cells, RoutedEventHandler cellClickHandler, int playgroundSize, int cellSize)
         {
+            Cells = cells;
             PopulatePlayground(cellClickHandler, playgroundSize, cellSize);
             LinkNeighbours();
         }
 
         private void PopulatePlayground(RoutedEventHandler cellClickHandler, int playgroundSize, int cellSize)
         {
-            Cells = new List<Cell>();
             for (double i = 0; i < playgroundSize; i++)
             {
                 for (double j = 0; j < playgroundSize; j++)
                 {
                     string name = "cell_" + i.ToString() + "_" + j.ToString();
                     string toolTip = i.ToString() + "," + j.ToString();
-                    Cell cell = new RegularCell(new Point(i, j), name, cellSize, cellSize, toolTip, cellClickHandler: cellClickHandler);
+                    Cell cell = new RegularCell(new Point(i, j), name, cellSize, cellSize, toolTip,isAlive: false, cellClickHandler: cellClickHandler);
                     Cells.Add(cell);
                 }
             }
@@ -47,11 +46,22 @@ namespace GameOfLifeWPF.Model
             }
         }
 
-        public void RefreshUI(bool gameIsRunning)
+        internal void ReplaceCell<T>(Cell sourceCell, T targetCell) where T : Cell
         {
-            OuterPanel.Background = gameIsRunning ? Brushes.LightSeaGreen : Brushes.DarkRed;
-            MainWindow.RefreshToolBar();
+            int index = Cells.IndexOf(sourceCell);
+            Cells.RemoveAt(index);
+            Cells.Insert(index, targetCell);
+
+            ReplaceInNeighbourhood(sourceCell, targetCell);
         }
 
+        private static void ReplaceInNeighbourhood<T>(Cell sourceCell, T targetCell) where T : Cell
+        {
+            foreach (Cell neighbour in targetCell.Neighbours)
+            {
+                neighbour.Neighbours.Remove(sourceCell);
+                neighbour.Neighbours.Add(targetCell);
+            }
+        }
     }
 }

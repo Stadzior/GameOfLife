@@ -5,6 +5,17 @@ namespace GameOfLifeWPF.Model
 {
     class VirusCell : Cell
     {
+        private bool _isAlive;
+        public override bool IsAlive
+        {
+            get { return _isAlive; }
+            set
+            {
+                _isAlive = value;
+                Dispatcher.Invoke(() => Background = value ? Brushes.ForestGreen : Brushes.Bisque);
+            }
+        }
+
         public VirusCell(Cell cell) : base(cell)
         {
             if(!(cell is VirusCell) && cell != this && cell != null)
@@ -20,9 +31,5 @@ namespace GameOfLifeWPF.Model
             return survived;
         }
 
-        public override void EmitCellState()
-        {
-            Dispatcher.Invoke(() => Background = Brushes.ForestGreen);
-        }
     }
 }

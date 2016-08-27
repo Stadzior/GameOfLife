@@ -7,6 +7,17 @@ namespace GameOfLifeWPF.Model
 {
     public class RegularCell : Cell
     {
+        private bool _isAlive;
+        public override bool IsAlive
+        {
+            get { return _isAlive; }
+            set
+            {
+                _isAlive = value;
+                Dispatcher.Invoke(() => Background = value ? Brushes.Purple : Brushes.Bisque);
+            }
+        }
+
         public RegularCell() : base()
         {
         }
@@ -20,9 +31,5 @@ namespace GameOfLifeWPF.Model
         {
         }
 
-        public override void EmitCellState()
-        {
-            Dispatcher.Invoke(() => Background = IsAlive ? Brushes.Purple : Brushes.Bisque);
-        }
     }
 }

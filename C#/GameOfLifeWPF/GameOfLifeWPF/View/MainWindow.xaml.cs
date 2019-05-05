@@ -13,13 +13,17 @@ namespace GameOfLifeWPF.View
     public partial class MainWindow : Window, IRefreshable
     {
         private Game _game;
+
         public MainWindow()
         {
             InitializeComponent();
 
             int playgroundSize = 50;
 
-            _game = new Game((CellCollection)wrapPanelPlayground.Children, playgroundSize, this);
+            _game = new Game(playgroundSize, this);
+
+            foreach (var cell in _game.LinkedPlayground.Cells)
+                wrapPanelPlayground.Children.Add(cell);
 
             RefreshToolBar();
             Width = wrapPanelPlayground.Width + 20;

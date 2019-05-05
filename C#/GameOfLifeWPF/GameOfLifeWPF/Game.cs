@@ -4,13 +4,8 @@ using GameOfLifeWPF.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace GameOfLifeWPF
 {
@@ -30,11 +25,11 @@ namespace GameOfLifeWPF
         private Thread _gameThread;
         public Playground LinkedPlayground { get; private set; }
 
-        public Game(CellCollection cells, int playgroundSize, IRefreshable view = null)
+        public Game(int playgroundSize, IRefreshable view = null)
         {
             //TODO Adjusting to screen login.
             int cellSize = 10;
-            LinkedPlayground = new Playground(cells, Cell_Click, playgroundSize, cellSize);
+            LinkedPlayground = new Playground(Cell_Click, playgroundSize, cellSize);
             if (view != null) _view = view;
         }
 
@@ -43,7 +38,7 @@ namespace GameOfLifeWPF
             Dictionary<Cell, bool> futureStates = new Dictionary<Cell, bool>();
             for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
-                Cell cell = (Cell)LinkedPlayground.Cells[i];
+                Cell cell = LinkedPlayground.Cells[i];
                 if (cell is VirusCell && !cell.IsAlive)
                 {
                     Application.Current.Dispatcher.Invoke(() => MutateCellTo<RegularCell>(cell));
@@ -68,7 +63,7 @@ namespace GameOfLifeWPF
         {
             for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
-                Cell cell = (Cell)LinkedPlayground.Cells[i];
+                Cell cell = LinkedPlayground.Cells[i];
                 if(!(cell is RegularCell)) MutateCellTo<RegularCell>(cell);
                 cell.IsAlive = false;
             }
@@ -78,7 +73,7 @@ namespace GameOfLifeWPF
         {
             for (int i = 0; i < LinkedPlayground.Cells.Count; i++)
             {
-                Cell cell = (Cell)LinkedPlayground.Cells[i];
+                Cell cell = LinkedPlayground.Cells[i];
                 Thread.Sleep(1);
                 if (!(cell is RegularCell)) MutateCellTo<RegularCell>(cell);
                 cell.IsAlive = new Random((int)DateTime.Now.Ticks).Next(2) == 1;

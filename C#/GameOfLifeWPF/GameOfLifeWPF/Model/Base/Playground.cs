@@ -11,12 +11,11 @@ namespace GameOfLifeWPF.Model
     public class Playground
     {
         public Panel PanelContainer { get; set; }
-        public CellCollection Cells { get; set; }
-        //public List<Cell> Cells { get; private set; }
+        public IList<Cell> Cells { get; set; }
 
-        public Playground(CellCollection cells, RoutedEventHandler cellClickHandler, int playgroundSize, int cellSize)
+        public Playground(RoutedEventHandler cellClickHandler, int playgroundSize, int cellSize)
         {
-            Cells = cells;
+            Cells = new List<Cell>();
             PopulatePlayground(cellClickHandler, playgroundSize, cellSize);
             LinkNeighbours();
         }
@@ -40,8 +39,8 @@ namespace GameOfLifeWPF.Model
             foreach (RegularCell cell in Cells)
             {
                 cell.Neighbours = Cells.Where((x) => (
-                (x.Coordinates.X > cell.Coordinates.X - 2 && x.Coordinates.X < cell.Coordinates.X + 2) &&
-                (x.Coordinates.Y > cell.Coordinates.Y - 2 && x.Coordinates.Y < cell.Coordinates.Y + 2) &&
+                x.Coordinates.X > cell.Coordinates.X - 2 && x.Coordinates.X < cell.Coordinates.X + 2 &&
+                x.Coordinates.Y > cell.Coordinates.Y - 2 && x.Coordinates.Y < cell.Coordinates.Y + 2 &&
                 x != cell)).ToList();
             }
         }

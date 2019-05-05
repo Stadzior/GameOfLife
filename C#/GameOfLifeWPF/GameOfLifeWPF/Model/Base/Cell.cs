@@ -10,7 +10,7 @@ namespace GameOfLifeWPF.Model.Base
     {
         public virtual bool IsAlive { get; set; }
         public Point Coordinates { get; set; }
-        public CellCollection Neighbours { get; set; }
+        public IList<Cell> Neighbours { get; set; }
         public int Age { get; protected set; }
 
         public Cell()
